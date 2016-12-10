@@ -44,6 +44,7 @@ local.properties
 *.qpf
 *.qsf
 *.qws
+*.docx
 
 # Build results
 

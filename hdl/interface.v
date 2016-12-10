@@ -69,13 +69,13 @@ endfunction
 
 //create 8 tables to save register mode, 3 bits for each
 reg[191:0]	rm_table0=192'h80000092001da18024924804924920024920000000000918;
-reg[153:0]	rm_table1;
-reg[133:0]	rm_table2;
-reg[23:0]	rm_table3;
-reg[49:0]	rm_table4;
-reg[199:0]	rm_table5;
-reg[199:0]	rm_table6;
-reg[55:0]	rm_table7;
+reg[266:0]	rm_table1=267'h59972be04f73e2a7ede36fec5080c5261ac36b069fb5e137dc0442a67ed87a8b051c71c5d9;
+reg[242:0]	rm_table2=243'hefd56a6fbb6f8cb7467f7091406b2b2147eedb31cff2a45dc2b11e5143bd67be61c;
+reg[38:0]	rm_table3=39'h40ac78323da;
+reg[74:0]	rm_table4=75'h3ad25d0ec7255a9a87780;
+reg[299:0]	rm_table5=300'h81c103907099aade705acf91d23f01e67ee458e6df6027651c80c72aecefb3da0b62f10380809aa86e0;
+reg[299:0]	rm_table6=300'h820bebb5e8fc5bdcc11905778054fcbe9e3cd640bc5a132c875a014b15c71c71c71c71c71c71c71c71c;
+reg[83:0]	rm_table7=84'he5c5bb81b9eabb95c71c71c;
 
 always	@	(posedge clk)	begin		//data to be displayed
 	if(!reset)	begin
