@@ -77,6 +77,15 @@ reg[299:0]	rm_table5=300'h81c103907099aade705acf91d23f01e67ee458e6df6027651c80c7
 reg[299:0]	rm_table6=300'h820bebb5e8fc5bdcc11905778054fcbe9e3cd640bc5a132c875a014b15c71c71c71c71c71c71c71c71c;
 reg[83:0]	rm_table7=84'he5c5bb81b9eabb95c71c71c;
 
+//reg[]			cm_table0			//enable forever
+reg[]			cm_table1
+reg[]			cm_table2
+reg[]			cm_table3
+reg[]			cm_table4
+reg[]			cm_table5
+reg[]			cm_table6
+reg[]			cm_table7
+
 always	@	(posedge clk)	begin		//data to be displayed
 	if(!reset)	begin
 		data_out				<=	32'h0;

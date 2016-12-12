@@ -13,19 +13,27 @@ module	interface(
 	
 	input		wire[2:0]	flash_cnt,
 	
+	input		wire			hold_flag,
+	
 	output	reg[3:0]		seg_select,
 	output	reg[2:0]		seg_mode,
 	output	reg[7:0]		seg_out
 );
 
+reg[39:0]			monitors[0:25];
+reg[]					monitor_value[0:25];
+
 reg[10:0]	mode_addr;		//format:P(mode[10:8]) - mode_addr[7:0]	eg: mode_addr = 11'h701 => P7-01
 reg[9:0]		alm;
 
-reg			key_minus_set;
+/*reg			key_minus_set;
 reg			key_mode_set;
 reg			key_plus_set;
 reg			key_set_set;
-reg			key_shift_set;
+reg			key_shift_set;*/
+
+reg[2:0]		keys_set;		//3'h0:set;3'h1:shift3'h2:mode;3'h3:plus;3'h4:minus;3'h5:plus_hold;3'h6:minus_hold.
+reg[12:0]	hold_cnt;
 
 reg[39:0]	data_out;
 
@@ -100,14 +108,19 @@ always	@	(posedge clk)	begin		//data to be displayed
 			end
 			`r_only:begin
 				data_out		<=	`r_onLy;
+				seg_mode		<=	`constant;
 			end
 			`main:begin
-				data_out		<=	{32'h0};
+				data_out		<=	monitor_value[monitor_add];
+				seg_mode		<=	`constant;
 			end
-			//26 others
-			
+			`monitor:begin
+				data_out		<=	monitors[monitor_add];
+				seg_mode		<=	`constant;
+			end
 			default:begin
 				data_out		<=	32'hFFFFFFFF;
+				seg_mode		<=	`constant;
 			end
 		endcase
 	end
@@ -130,7 +143,33 @@ always	@	(posedge	clk)	begin		//state control
 			
 			end
 			`main:begin
-			
+				case(keys_set)
+					3'h0:	state	<=				//key_set
+					3'h1:	state	<=				//key_shift
+					3'h2:	state	<=	`mode;			//key_mode
+					3'h3:begin					//key_plus
+						state			<=	`monitor;	
+						if(monitor_add == 5'h1A)	begin
+							monitor_add	<=	5'h0;
+						end	else	begin
+							monitor_add	<=	monitor_add + 1;
+						end
+					end
+					3'h4:begin						//key_minus
+						state			<=	`monitor;
+						if(monitor_add == 5'h0)	begin
+							monitor_add	<=	5'h1A;
+						end	else	begin
+							monitor_add	<=	monitor_add - 1;
+						end
+					end
+					//3'h5:						//key_plus_hold			//useless in mode main
+					//3'h6:						//key_minus_hold			//useless in mode main
+					default:begin
+						state		<=	`main;
+						monitor_add	<=	5'h0;
+					end
+				endcase
 			end
 			`alarm:begin
 			
@@ -138,52 +177,69 @@ always	@	(posedge	clk)	begin		//state control
 			`r_only:begin
 			
 			end
+			`monitor:begin
+				
+			end
 			default:state		<=	`main;
 		endcase
 	end
 end
 
+always	@	(posedge	clk)	begin		//key_hold		10ms
+	if(hold_cnt == 13'h2710)	begin
+		hold_cnt		<=	13'h0;
+		hold_flag	<=	1'b1;
+	end	else	
+	if(key_minus || key_plus)	begin
+		hold_cnt		<=	hold_cnt	+ 1;
+		hold_flag	<=	1'b0;
+	end	else	begin
+		hold_cnt		<=	13'h0;
+		hold_flag	<=	1'b0;
+	end
+end
+
+
 always	@	(posedge	scan_clk)	begin		//key scan, use scan_clk
 	if(key_mode)	begin
 		if(key_mode)	begin
-			key_mode_set	<=	1'b1;
+			keys_set	<=	3'h3;
 		end	else	begin
-			key_mode_set	<=	1'b0;
+			keys_set	<=	3'h0;
 		end
 	end	else
 	if(key_shift)	begin
 		if(key_shift)	begin
-			key_shift_set	<=	1'b1;
+			keys_set	<=	3'h2;
 		end	else	begin
-			key_shift_set	<=	1'b0;
+			keys_set	<=	3'h0;
 		end
 	end	else	
 	if(key_plus)	begin
 		if(key_plus)	begin
-			key_plus_set	<=	1'b1;
+			if(hold_flag)	begin
+				keys
+			end	else	begin
+			keys_set	<=	3'h4;
 		end	else	begin
-			key_plus_set	<=	1'b0;
+			keys_set	<=	3'h0;
 		end
 	end	else	
 	if(key_minus)	begin
 		if(key_minus)	begin
-			key_minus_set	<=	1'b1;
+			keys_set	<=	3'h5;
 		end	else	begin
-			key_minus_set	<=	1'b0;
+			keys_set <=	3'h0;
 		end
 	end	else	
 	if(key_set)	begin
 		if(key_set)	begin
-			key_set_set		<=	1'b1;
+			keys_set	<=	3'h1;
 		end	else	begin
-			key_set_set		<=	1'b0;
+			keys_set	<=	3'h0;
 		end
 	end	else	begin
-		key_minus_set		<=	1'b0;
-		key_mode_set		<=	1'b0;
-		key_plus_set		<=	1'b0;
-		key_set_set			<=	1'b0;
-		key_shift_set		<=	1'b0;
+		keys_set		<=	3'h0;
 	end
 end
 
