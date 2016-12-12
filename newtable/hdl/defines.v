@@ -10,4 +10,3 @@
 `define	set		8
 `define	main		9
 `define	single_flash	10
-`define	monitor	11
