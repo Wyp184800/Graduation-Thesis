@@ -140,10 +140,10 @@ always	@	(posedge	clk or negedge reset)	begin		//state control
 			end
 			`main:begin
 				case(keys_set)
-					3'h0:	state	<=				//key_set
-					3'h1:	state	<=				//key_shift
+					3'h0:	state	<=	`main;			//key_set
+					3'h1:	state	<=	`main;			//key_shift
 					3'h2:	state	<=	`mode;			//key_mode
-					3'h3:begin					//key_plus
+					3'h3:begin							//key_plus
 						state			<=	`monitor;	
 						if(monitor_add == 5'h1A)	begin
 							monitor_add	<=	5'h0;
@@ -171,7 +171,7 @@ always	@	(posedge	clk or negedge reset)	begin		//state control
 			
 			end
 			`r_only:begin
-			
+				//delay2s
 			end
 			`monitor:begin
 				
