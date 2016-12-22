@@ -102,6 +102,9 @@ always	@	(posedge clk or negedge reset)	begin		//data to be displayed
 				seg_mode		<=	`constant;
 			end
 			`main:begin
+				case()
+				
+				endcase
 				data_out		<=	monitor_value[monitor_add];
 				seg_mode		<=	`constant;
 			end
@@ -139,31 +142,47 @@ always	@	(posedge	clk or negedge reset)	begin		//state control
 			
 			end
 			`main:begin
-				case(keys_set)
-					3'h0:	state	<=	`main;			//key_set
-					3'h1:	state	<=	`main;			//key_shift
-					3'h2:	state	<=	`mode;			//key_mode
-					3'h3:begin							//key_plus
-						state			<=	`monitor;	
-						if(monitor_add == 5'h1A)	begin
-							monitor_add	<=	5'h0;
-						end	else	begin
-							monitor_add	<=	monitor_add + 1'b1;
-						end
+				case(monitor_add)
+					`common:begin
+						case(keys_set)
+							3'h0:	state	<=	`main;			//key_set
+							3'h1:	state	<=	`main;			//key_shift
+							3'h2:	state	<=	`mode;			//key_mode
+							3'h3:begin							//key_plus
+								state			<=	`monitor;	
+								if(monitor_add == 5'h1A)	begin
+									monitor_add	<=	5'h0;
+								end	else	begin
+									monitor_add	<=	monitor_add + 1'b1;
+								end
+							end
+							3'h4:begin						//key_minus
+								state			<=	`monitor;
+								if(monitor_add == 5'h0)	begin
+									monitor_add	<=	5'h1A;
+								end	else	begin
+									monitor_add	<=	monitor_add - 1'b1;
+								end
+							end
+							//3'h5:						//key_plus_hold			//useless in mode main
+							//3'h6:						//key_minus_hold			//useless in mode main
+							default:begin
+								state		<=	`main;
+								monitor_add	<=	5'h0;
+							end
+						endcase
 					end
-					3'h4:begin						//key_minus
-						state			<=	`monitor;
-						if(monitor_add == 5'h0)	begin
-							monitor_add	<=	5'h1A;
-						end	else	begin
-							monitor_add	<=	monitor_add - 1'b1;
-						end
+					`hex_dec:begin
+						
 					end
-					//3'h5:						//key_plus_hold			//useless in mode main
-					//3'h6:						//key_minus_hold			//useless in mode main
+					`high_low:begin
+					
+					end
+					`pos_nege:begin
+					
+					end
 					default:begin
-						state		<=	`main;
-						monitor_add	<=	5'h0;
+					
 					end
 				endcase
 			end
@@ -171,13 +190,59 @@ always	@	(posedge	clk or negedge reset)	begin		//state control
 			
 			end
 			`r_only:begin
-				//delay2s
+				//delay2s, back to ?
 			end
 			`monitor:begin
-				
+				//delay2s, back to main
 			end
-			default:state		<=	`main;
+			default:begin
+				state		<=	`main;
+			end
 		endcase
+	end
+end
+
+always	@	(posedge clk or negedge reset)	begin		//check before modify register value, mapping to EEPROM		//in case mode
+	if(!reset)	begin
+		
+	end	else	begin
+		case(mode_addr[10:8])
+			3'h0:begin
+				check	<=	rm_table0 >> (3 * mode_addr[7:0]);
+			end
+			3'h1:begin
+			
+			end
+			3'h2:begin
+			
+			end
+			3'h3:begin
+			
+			end
+			3'h4:begin
+			
+			end
+			3'h5:begin
+			
+			end
+			3'h6:begin
+			
+			end
+			3'h7:begin
+			
+			end
+			default:begin
+			
+			end
+		endcase
+	end
+end
+
+always	@	(posedge clk or negedge reset)	begin		//modify register			//in case set
+	if(!reset)	begin
+	
+	end	else	begin
+	
 	end
 end
 
